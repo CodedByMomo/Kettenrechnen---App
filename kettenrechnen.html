@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kettenrechnen - Training by Mo</title>
+<style>
+  :root{
+    --bg: #f5f7fb;
+    --card: #ffffff;
+    --border: #e2e6ef;
+    --text: #1f2430;
+    --text-secondary: #667085;
+    --accent: #4c6ef5;
+    --accent-hover: #3b5bdb;
+    --green-bg: #e9f9ee;
+    --green-text: #1b8a4b;
+    --red-bg: #fdecec;
+    --red-text: #c0392b;
+    --radius: 12px;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    padding: 40px 16px;
+    min-height: 100vh;
+  }
+  .wrap{
+    width: 100%;
+    max-width: 540px;
+  }
+  .brand{
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .card{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    box-shadow: 0 2px 8px rgba(20,20,40,0.04);
+  }
+  h1{
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+  .subtitle{
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0 0 28px;
+  }
+  label{
+    font-size: 14px;
+    color: var(--text-secondary);
+    display: block;
+    margin-bottom: 8px;
+  }
+  input[type="range"]{
+    width: 100%;
+    accent-color: var(--accent);
+  }
+  .slider-row{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .slider-value{
+    font-size: 15px;
+    font-weight: 600;
+    min-width: 76px;
+    text-align: right;
+  }
+  button{
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  button:hover{ background: var(--accent-hover); }
+  button.secondary{
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  button.secondary:hover{ background: #eef1ff; }
+  button:disabled{ opacity: 0.5; cursor: not-allowed; }
+  .full-width{ width: 100%; }
+  .top-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+  }
+  .progress-bar{
+    height: 5px;
+    background: var(--bg);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .progress-fill{
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.2s ease;
+  }
+  .expression{
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+  .answer-row{
+    display: flex;
+    gap: 10px;
+  }
+  input[type="number"]{
+    flex: 1;
+    font-size: 16px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fbfbfd;
+    color: var(--text);
+  }
+  input[type="number"]:focus{
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(76,110,245,0.15);
+  }
+  .error-msg{
+    font-size: 13px;
+    color: var(--red-text);
+    margin-top: 8px;
+    min-height: 16px;
+  }
+  .result-summary{
+    background: var(--bg);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .result-summary .score{
+    font-size: 26px;
+    font-weight: 700;
+    margin: 4px 0 8px;
+  }
+  .rating-badge{
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 999px;
+  }
+  .row-item{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  .row-item .expr{ flex: 1; }
+  .row-item .time{
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-left: 12px;
+    min-width: 44px;
+    text-align: right;
+  }
+  .row-item .verdict{
+    font-weight: 600;
+    margin-left: 12px;
+  }
+  .ok{ background: var(--green-bg); }
+  .ok .verdict{ color: var(--green-text); }
+  .bad{ background: var(--red-bg); }
+  .bad .verdict{ color: var(--red-text); }
+  .footer-actions{
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .diff-options{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .diff-option{
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    background: #fbfbfd;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .diff-option:hover{
+    border-color: var(--accent);
+    background: #eef1ff;
+  }
+  .diff-option.selected{
+    border-color: var(--accent);
+    background: #eef1ff;
+    box-shadow: 0 0 0 2px rgba(76,110,245,0.15);
+  }
+  .diff-badge{
+    min-width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .diff-text .diff-title{
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 2px;
+  }
+  .diff-text .diff-desc{
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">Kettenrechnen - Training by Mo</div>
+  <div class="card" id="app"></div>
+</div>
+
+<script>
+(function(){
+  const TOTAL = 15;
+  let tasks = [];
+  let current = 0;
+  let results = [];
+  let view = 'difficulty';
+  let difficulty = 1;
+  let minutesChosen = 5;
+  let totalSeconds = 0;
+  let secondsLeft = 0;
+  let timerId = null;
+  let taskStartTime = null;
+  let quizStartTime = null;
+  let quizEndTime = null;
+
+  const DIFFICULTY_INFO = {
+    1: { title: 'Schwierigkeit 1', desc: 'Ergebnisse bis 100. Guter Einstieg fürs Kettenrechnen.' },
+    2: { title: 'Schwierigkeit 2', desc: 'Ergebnisse bis 999. Größere Zahlen, mehr Herausforderung.' },
+    3: { title: 'Schwierigkeit 3', desc: 'Ergebnisse bis 5000. Für Fortgeschrittene.' }
+  };
+
+  const DIFFICULTY_SETTINGS = {
+    1: { maxValue: 100, startMin: 10, startMax: 50, addMin: 5, addMax: 30, multMin: 2, multMax: 4, divisors: [2,3,4] },
+    2: { maxValue: 999, startMin: 10, startMax: 90, addMin: 6, addMax: 35, multMin: 2, multMax: 6, divisors: [2,3,4,5,6] },
+    3: { maxValue: 5000, startMin: 20, startMax: 200, addMin: 7, addMax: 42, multMin: 3, multMax: 9, divisors: [2,3,4,5,6,7,8] }
+  };
+
+  function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+  function genTask(){
+    const cfg = DIFFICULTY_SETTINGS[difficulty];
+    const length = randInt(8,9);
+    let value = randInt(cfg.startMin, cfg.startMax);
+    let numbers = [value];
+    let operators = [];
+    for(let i=0;i<length-1;i++){
+      let attempts = 0;
+      let done = false;
+      while(attempts < 12 && !done){
+        attempts++;
+        const r = Math.random();
+        let op, n, newval;
+        if(r < 0.40){
+          op = '+';
+          n = randInt(cfg.addMin, cfg.addMax);
+          newval = value + n;
+        } else if(r < 0.70){
+          op = '-';
+          n = randInt(cfg.addMin, cfg.addMax);
+          newval = value - n;
+        } else if(r < 0.90){
+          op = '*';
+          n = randInt(cfg.multMin, cfg.multMax);
+          newval = value * n;
+        } else {
+          const d = cfg.divisors[randInt(0, cfg.divisors.length-1)];
+          if(value % d === 0 && value / d >= 1){
+            op = '/';
+            n = d;
+            newval = value / d;
+          } else {
+            continue;
+          }
+        }
+        if(newval >= 0 && newval <= cfg.maxValue && Number.isInteger(newval)){
+          operators.push(op);
+          numbers.push(n);
+          value = newval;
+          done = true;
+        }
+      }
+      if(!done){
+        operators.push('+');
+        numbers.push(1);
+        value = value + 1;
+      }
+    }
+    let expr = numbers[0].toString();
+    for(let i=0;i<operators.length;i++){
+      expr += ' ' + operators[i] + ' ' + numbers[i+1];
+    }
+    return { expr, answer: value };
+  }
+
+  function newTasks(){
+    tasks = [];
+    for(let i=0;i<TOTAL;i++) tasks.push(genTask());
+  }
+
+  function formatTime(s){
+    const m = Math.floor(s/60);
+    const sec = s%60;
+    return String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+  }
+
+  function stopTimer(){
+    if(timerId){ clearInterval(timerId); timerId = null; }
+  }
+
+  function getRating(totalSecondsUsed){
+    const min = totalSecondsUsed / 60;
+    if(min < 5) return { label: 'Spitzenleistung', bg: '#e9f9ee', color: '#1b8a4b' };
+    if(min < 7) return { label: 'Sehr gut', bg: '#eaf4ff', color: '#1c6fd6' };
+    if(min < 9) return { label: 'Genügend', bg: '#fff8e1', color: '#b8860b' };
+    if(min < 11) return { label: 'Ausreichend', bg: '#fff1e0', color: '#c9700a' };
+    if(min < 13) return { label: 'Mangelhaft', bg: '#fdecec', color: '#c0392b' };
+    return { label: 'Durchgefallen - Versuch\'s nochmal', bg: '#fdecec', color: '#941f1f' };
+  }
+
+  function finishDueToTimeout(){
+    stopTimer();
+    quizEndTime = Date.now();
+    for(let i=current;i<TOTAL;i++){
+      results.push({ expr: tasks[i].expr, correct: tasks[i].answer, given: null, timeMs: null });
+    }
+    current = TOTAL;
+    view = 'results';
+    render();
+  }
+
+  function startTimer(){
+    stopTimer();
+    secondsLeft = totalSeconds;
+    timerId = setInterval(function(){
+      secondsLeft--;
+      const el = document.getElementById('timerDisplay');
+      if(el) el.textContent = formatTime(Math.max(0,secondsLeft));
+      if(secondsLeft <= 0){
+        finishDueToTimeout();
+      }
+    }, 1000);
+  }
+
+  function render(){
+    const app = document.getElementById('app');
+
+    if(view === 'difficulty'){
+      let options = '';
+      for(let d=1; d<=3; d++){
+        const info = DIFFICULTY_INFO[d];
+        const selected = d === difficulty ? ' selected' : '';
+        options += `
+          <div class="diff-option${selected}" data-diff="${d}">
+            <div class="diff-badge">${d}</div>
+            <div class="diff-text">
+              <div class="diff-title">${info.title}</div>
+              <div class="diff-desc">${info.desc}</div>
+            </div>
+          </div>
+        `;
+      }
+      app.innerHTML = `
+        <h1>Schwierigkeit wählen</h1>
+        <p class="subtitle">Wähle, wie groß die Ergebnisse der Kettenrechnungen maximal werden dürfen.</p>
+        <div class="diff-options" id="diffOptions">${options}</div>
+        <button class="full-width" id="nextBtn">Weiter</button>
+      `;
+      const optionEls = app.querySelectorAll('.diff-option');
+      optionEls.forEach(function(el){
+        el.addEventListener('click', function(){
+          difficulty = Number(el.getAttribute('data-diff'));
+          optionEls.forEach(function(o){ o.classList.remove('selected'); });
+          el.classList.add('selected');
+        });
+      });
+      document.getElementById('nextBtn').addEventListener('click', function(){
+        view = 'timer';
+        render();
+      });
+      return;
+    }
+
+    if(view === 'timer'){
+      app.innerHTML = `
+        <h1>Zeitlimit einstellen</h1>
+        <p class="subtitle">${TOTAL} Aufgaben, ausgewertet von links nach rechts (ohne Punkt vor Strich) - Schwierigkeit ${difficulty}</p>
+        <label>Zeitlimit für alle Aufgaben (1-20 Minuten)</label>
+        <div class="slider-row">
+          <input type="range" min="1" max="20" step="1" value="${minutesChosen}" id="minInput" />
+          <span class="slider-value" id="minOut">${minutesChosen} Min.</span>
+        </div>
+        <div class="footer-actions">
+          <button class="secondary" id="backBtn">Zurück</button>
+          <button class="full-width" id="startBtn">Kettenrechnen starten</button>
+        </div>
+      `;
+      const range = document.getElementById('minInput');
+      const out = document.getElementById('minOut');
+      range.addEventListener('input', function(){
+        minutesChosen = Number(range.value);
+        out.textContent = minutesChosen + ' Min.';
+      });
+      document.getElementById('backBtn').addEventListener('click', function(){
+        view = 'difficulty';
+        render();
+      });
+      document.getElementById('startBtn').addEventListener('click', function(){
+        totalSeconds = minutesChosen * 60;
+        newTasks();
+        current = 0;
+        results = [];
+        view = 'quiz';
+        quizStartTime = Date.now();
+        taskStartTime = Date.now();
+        render();
+        startTimer();
+      });
+      return;
+    }
+
+    if(view === 'quiz'){
+      const t = tasks[current];
+      app.innerHTML = `
+        <div class="top-row">
+          <span>Aufgabe ${current+1} von ${TOTAL} - Schwierigkeit ${difficulty}</span>
+          <span id="timerDisplay">${formatTime(secondsLeft)}</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${(current/TOTAL)*100}%;"></div>
+        </div>
+        <div class="expression">${t.expr} = ?</div>
+        <div class="answer-row">
+          <input type="number" id="answerInput" placeholder="Ergebnis eingeben" />
+          <button id="submitBtn">Weiter</button>
+        </div>
+        <div class="error-msg" id="errorMsg"></div>
+      `;
+      const input = document.getElementById('answerInput');
+      const btn = document.getElementById('submitBtn');
+      const err = document.getElementById('errorMsg');
+      function submit(){
+        const val = input.value.trim();
+        if(val === '' || isNaN(Number(val))){
+          err.textContent = 'Bitte eine Zahl eingeben';
+          return;
+        }
+        err.textContent = '';
+        const now = Date.now();
+        const timeMs = now - taskStartTime;
+        results.push({ expr: t.expr, correct: t.answer, given: Number(val), timeMs: timeMs });
+        current++;
+        taskStartTime = now;
+        if(current >= TOTAL){
+          stopTimer();
+          quizEndTime = now;
+          view = 'results';
+        }
+        render();
+      }
+      btn.addEventListener('click', submit);
+      input.addEventListener('keydown', function(e){ if(e.key==='Enter') submit(); });
+      input.focus();
+      return;
+    }
+
+    if(view === 'results'){
+      const correctCount = results.filter(r => r.given !== null && r.given === r.correct).length;
+      const totalUsedSeconds = quizEndTime && quizStartTime ? Math.round((quizEndTime - quizStartTime)/1000) : totalSeconds - secondsLeft;
+      const rating = getRating(totalUsedSeconds);
+
+      let rows = results.map(r => {
+        const ok = r.given !== null && r.given === r.correct;
+        const cls = ok ? 'ok' : 'bad';
+        const label = ok ? 'Richtig' : (r.given === null ? 'Nicht beantwortet' : 'Antwort: ' + r.given);
+        const timeLabel = r.timeMs !== null ? (r.timeMs/1000).toFixed(1) + 's' : '-';
+        return `
+          <div class="row-item ${cls}">
+            <span class="expr">${r.expr} = ${r.correct}</span>
+            <span class="time">${timeLabel}</span>
+            <span class="verdict">${label}</span>
+          </div>
+        `;
+      }).join('');
+
+      app.innerHTML = `
+        <h1>Auswertung</h1>
+        <div class="result-summary">
+          <div style="font-size:13px;color:var(--text-secondary);">Ergebnis - Schwierigkeit ${difficulty}</div>
+          <div class="score">${correctCount} von ${TOTAL} richtig</div>
+          <div>Gesamtzeit: ${formatTime(totalUsedSeconds)}</div>
+          <div style="margin-top:10px;">
+            <span class="rating-badge" style="background:${rating.bg};color:${rating.color};">${rating.label}</span>
+          </div>
+        </div>
+        ${rows}
+        <div class="footer-actions">
+          <button class="secondary full-width" id="restartBtn">Neustart</button>
+        </div>
+      `;
+      document.getElementById('restartBtn').addEventListener('click', function(){
+        stopTimer();
+        view = 'difficulty';
+        render();
+      });
+      return;
+    }
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
